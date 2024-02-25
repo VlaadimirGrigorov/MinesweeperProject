@@ -28,13 +28,13 @@ void init(char** matrix, char value)
     }
 }
 
-void print(char** grid, int numberOfMines) 
+void print(char** matrix, int numberOfMines) 
 {
     for (int i = 0; i < size; ++i)
     {
         for (int j = 0; j < size; ++j)
         {
-            std::cout << grid[i][j] << " ";
+            std::cout << matrix[i][j] << " ";
         }
         std::cout << std::endl;
     }
@@ -50,7 +50,7 @@ bool areValidIndices(char** matrix, int x, int y)
 
 bool areValid (int x, int y)
 {
-    return x >= 0 && x < 10 && y >= 0 && y < 10;
+    return x >= 0 && x < size && y >= 0 && y < size;
 }
 
 void inputValidation(char** matrix, int& x, int& y)
@@ -65,7 +65,7 @@ void inputValidation(char** matrix, int& x, int& y)
     }
 }
 
-void generateMinesweeperGrid(char** grid, int numberOfMines) 
+void generateMinesweeperGrid(char** matrix, int numberOfMines) 
 {
     init(grid, '0');
 
@@ -76,18 +76,18 @@ void generateMinesweeperGrid(char** grid, int numberOfMines)
     {
         int row = rand() % size;
         int coll = rand() % size;
-        if (grid[row][coll] != '*')
+        if (matrix[row][coll] != '*')
         {
-            grid[row][coll] = '*';
+            matrix[row][coll] = '*';
             placedMines++;
 
             for (int i = row - 1; i <= row + 1; i++) 
             {
                 for (int j = coll - 1; j <= coll + 1; j++) 
                 {
-                    if (areValidIndices(grid, i, j))
+                    if (areValidIndices(matrix, i, j))
                     {
-                        grid[i][j]++;
+                        matrix[i][j]++;
                     }
                 }
             }
@@ -97,7 +97,7 @@ void generateMinesweeperGrid(char** grid, int numberOfMines)
 
 bool inRange(int x, int y, int i, int j)
 {
-    return x + i >= 0 && x + i < 10 && y + j >= 0 && y + j < 10;
+    return x + i >= 0 && x + i < size && y + j >= 0 && y + j < size;
 }
 
 void reveal(char** matrix, char** resultMatrix, int x, int y)
@@ -109,7 +109,9 @@ void reveal(char** matrix, char** resultMatrix, int x, int y)
     {
         return;
     }
+
     resultMatrix[x][y] = matrix[x][y];
+    
     if (matrix[x][y] == '0')
     {
         for (int i = -1; i <= 1; i++)
@@ -127,6 +129,7 @@ void reveal(char** matrix, char** resultMatrix, int x, int y)
 
 void open(char** matrix, char** resultMatrix, int x, int y, int numberOfMines)
 {
+    // we can't open marked cell
     if (resultMatrix[x][y] == 'X')
     {
         return;
@@ -151,15 +154,17 @@ void open(char** matrix, char** resultMatrix, int x, int y, int numberOfMines)
 
 void mark(char** matrix, char** resultMatrix, int x, int y, int& numberOfMines)
 {
+    // we can only mark cell that are not opened
     if (resultMatrix[x][y] == '_')
     {
         resultMatrix[x][y] = 'X';
+        numberOfMines--;
     }
-    numberOfMines--;
 }
 
 void unmark(char** matrix, char** resultMatrix, int x, int y, int& numberOfMines)
 {
+    // we can only unmark marked cells
     if (resultMatrix[x][y] == 'X')
     {
         resultMatrix[x][y] = '_';
@@ -181,20 +186,6 @@ bool allRevelaed(char** matrix, char** resultMatrix, int x, int y, int numberOfM
     }
 
     return numberOfMines == 0;
-}
-
-void getBackOldMines(char** resultMatrix, int x, int y)
-{
-    for (int i = 0; i < size; i++)
-    {
-        for (int j = 0; j < size; j++)
-        {
-            if (resultMatrix[x][y] == 'X')
-            {
-                resultMatrix[x][y] = '*';
-            }
-        }
-    }
 }
 
 void inputMatrixSize(int& matrix_size)
@@ -248,7 +239,7 @@ int main()
     char command[1024];
     inputMatrixSize(size);
     inputNumberOfMines(number_of_mines, size);
-    std::cin.ignore();
+    std::cin.ignore(); // because I have std::cin.getline()
 
     char** matrix = new char*[size]; // already generated matrix
     char** result = new char*[size]; // matrix for print
@@ -297,7 +288,6 @@ int main()
         bool isFinished = allRevelaed(matrix, result, x, y, number_of_mines);
         if (isFinished)
         {
-            getBackOldMines(result, x, y);
             print(result, number_of_mines);
             std::cout << "Congratulations, you win the game!" << std::endl;
             break;
