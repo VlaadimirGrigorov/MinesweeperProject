@@ -1,7 +1,7 @@
 #include <iostream>
 
-int size = 10;
-int number_of_mines = 15;
+int size = 0;
+int number_of_mines = 0;
 
 int myStrcmp(const char* first, const char* second)
 {
@@ -65,14 +65,14 @@ void inputValidation(char** matrix, int& x, int& y)
     }
 }
 
-void generateMinesweeperGrid(char** grid, int numMines) 
+void generateMinesweeperGrid(char** grid, int numberOfMines) 
 {
     init(grid, '0');
 
     srand(time(NULL));
 
     int placedMines = 0;
-    while (placedMines < numMines) 
+    while (placedMines < numberOfMines)
     {
         int row = rand() % size;
         int coll = rand() % size;
@@ -256,7 +256,7 @@ int main()
     matrix = allocateMatrix(size);
     result = allocateMatrix(size);
     
-    generateMinesweeperGrid(matrix, 15); // function for generating a matrix
+    generateMinesweeperGrid(matrix, number_of_mines); // function for generating a matrix
     init(result, '_'); // initialize the matrix we want to print
     print(result, number_of_mines); // function for print
 
